@@ -9,3 +9,7 @@ How to run?
 To stop, either ctrl+c for ongoing one, or "docker-compose down" for daemon.
 
 Swagger is available at localhost:5000/swagger, postgres at localhost:5432 with postgres/Jump4Fun!
+
+Before other operations, you need to create a user and use his ID since userID is required for Question, Answer and Vote!
+
+*root*/SampleQuestions.json may be used to test bulk upload.
