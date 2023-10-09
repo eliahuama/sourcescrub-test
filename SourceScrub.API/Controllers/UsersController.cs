@@ -20,10 +20,10 @@ namespace SourceScrub.API.Controllers
         }
 
         /// <summary>
-        /// Retrieves a specific question by ID.
+        /// Retrieves a specific user by ID.
         /// </summary>
-        /// <param name="id">The ID of the question.</param>
-        /// <returns>The question details.</returns>
+        /// <param name="id">The ID of the user.</param>
+        /// <returns>The user details.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<UserModel>> Get(int id)
         {
@@ -33,10 +33,10 @@ namespace SourceScrub.API.Controllers
         }
 
         /// <summary>
-        /// Adds a new question.
+        /// Adds a new user.
         /// </summary>
-        /// <param name="userModel">The question to be added.</param>
-        /// <returns>The newly created question.</returns>
+        /// <param name="userModel">The user to be added.</param>
+        /// <returns>The newly created user.</returns>
         [HttpPost]
         public async Task<ActionResult<UserModel>> Post([FromBody]UserModel userModel)
         {

@@ -85,7 +85,7 @@ namespace SourceScrub.API.Controllers
         /// <param name="questionId">The ID of the question to vote on.</param>
         /// <param name="userId">The ID of the voting user.</param>
         /// <param name="upvote">True for upvote, False for downvote.</param>
-        /// <returns>A boolean indicating the success of the operation.</returns>
+        /// <returns>A status indicating the success of the operation.</returns>
         [HttpPost("{questionId}/vote")]
         public async Task<ActionResult> Vote(int questionId, int userId, bool upvote)
         {
@@ -99,8 +99,9 @@ namespace SourceScrub.API.Controllers
         /// </summary>
         /// <param name="questionId">The ID of the question the answer belongs to.</param>
         /// <param name="answerId">The ID of the answer to vote on.</param>
+        /// <param name="userId">The ID of the voting user.</param>
         /// <param name="upvote">True for upvote, False for downvote.</param>
-        /// <returns>A boolean indicating the success of the operation.</returns>
+        /// <returns>A status indicating the success of the operation.</returns>
         [HttpPost("{questionId}/answers/{answerId}/votes")]
         public async Task<ActionResult> VoteOnAnswer(int questionId, int answerId, int userId, bool upvote)
         {
@@ -109,6 +110,11 @@ namespace SourceScrub.API.Controllers
                 : NotFound();
         }
 
+        /// <summary>
+        /// Bulk uploads questions from an attached JSON file.
+        /// </summary>
+        /// <param name="file">JSON file to process.</param>
+        /// <returns>A status indicating the success of the operation.</returns>
         [HttpPost("bulk-upload")]
         public async Task<ActionResult> BulkUpload(IFormFile file)
         {
@@ -116,13 +122,19 @@ namespace SourceScrub.API.Controllers
                 return BadRequest("File not selected");
 
             using var stream = new StreamReader(file.OpenReadStream());
-            var jsonContent = await stream.ReadToEndAsync();
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var models = JsonSerializer.Deserialize<List<QuestionModel>>(jsonContent, options);
-            if (models == null || !models.Any()) return BadRequest("Invalid file content");
+            var jsonContent = await stream.ReadToEndAsync();//better be read in parts but not for now
+
+            ICollection<QuestionModel> models;
+            try {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                models = JsonSerializer.Deserialize<List<QuestionModel>>(jsonContent, options);
+                if (models == null || !models.Any()) return Ok("None created, empty file");
+            } catch(Exception ex) {
+                return BadRequest($"Invalid file content: {ex}");
+            }
+
             var questions = _mapper.Map<List<Question>>(models);
             await _questionService.AddAsync(questions);
-
             return Ok("Bulk insert successful");
         }
     }
