@@ -1,0 +1,30 @@
+version: '3.4'
+services:
+  api:
+    image: sourcescrub-api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/src
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: sourcescrub
+      POSTGRES_USER: sourcescrub
+      POSTGRES_PASSWORD: Jump4Fun!
+    ports:
+      - "5432:5432"
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "sourcescrub"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
