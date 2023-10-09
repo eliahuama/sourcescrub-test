@@ -117,11 +117,10 @@ namespace SourceScrub.API.Controllers
 
             using var stream = new StreamReader(file.OpenReadStream());
             var jsonContent = await stream.ReadToEndAsync();
-            var questions = JsonSerializer.Deserialize<List<Question>>(jsonContent);
-
-            if (questions == null || !questions.Any())
-                return BadRequest("Invalid file content");
-
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var models = JsonSerializer.Deserialize<List<QuestionModel>>(jsonContent, options);
+            if (models == null || !models.Any()) return BadRequest("Invalid file content");
+            var questions = _mapper.Map<List<Question>>(models);
             await _questionService.AddAsync(questions);
 
             return Ok("Bulk insert successful");
